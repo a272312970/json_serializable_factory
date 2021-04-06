@@ -1,0 +1,31 @@
+targets:
+  $default:
+    builders:
+      # json_serializable_factory 工程下的 json_bean_gen_builder(builder 名字随意，和下面对应就可以)
+      json_serializable_factory|json_bean_gen_builder:
+        options: { 'write': true }
+        enabled: true
+        generate_for:
+          exclude: ['**.model.g.dart']
+      json_serializable_factory|json_factory_gen_builder:
+        options: { 'write': true }
+        enabled: true
+        generate_for:
+          exclude: ['**.init.dart']
+
+
+builders:
+  json_bean_gen_builder:
+    import: "package:json_serializable_factory/src/builder.dart" # builder.dart 文件位置
+    builder_factories: ["generateJsonParams"] # 对应 build.dart 文件中的方法
+    build_extensions: {".dart": ['.model.g.dart']} # 生成文件后缀名
+    auto_apply: dependents
+    build_to: source
+    # runs_before 先于 json_factory_gen_builder 执行
+    runs_before: ['json_serializable_factory|json_factory_gen_builder']
+  json_factory_gen_builder:
+    import: "package:json_serializable_factory/src/builder.dart"
+    builder_factories: ["generateJsonFactory"]
+    build_extensions: {".dart": ['.init.dart']}
+    auto_apply: dependents
+    build_to: source
